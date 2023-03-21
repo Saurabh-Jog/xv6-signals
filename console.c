@@ -12,6 +12,7 @@
 #include "file.h"
 #include "memlayout.h"
 #include "mmu.h"
+#include "signal.h"
 #include "proc.h"
 #include "x86.h"
 
