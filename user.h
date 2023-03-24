@@ -37,3 +37,10 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+
+// handlers.c
+void sig_term(int signo);
+void sig_ign(int signo);
+// void sig_core(int signo);
+void sig_stop(int signo);
+void sig_cont(int signo);
