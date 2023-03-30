@@ -7,6 +7,15 @@
 struct signal_struct {
 	int is_pending;
 	void (*sa_handler)(int);
-	// void (*def_handler)(int);
 	int sender_pid;
 };
+
+typedef struct sigset {
+	int sigs[NSIGS];
+} sigset;
+
+struct sigaction {
+	void (*sa_handler)(int);
+	sigset_t sa_mask;
+    int sa_flags;
+}
