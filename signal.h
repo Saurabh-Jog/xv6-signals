@@ -4,18 +4,22 @@
 #define SIGSTOP 3
 #define SIGKILL 4
 
+#define NSIGS   10 // number of signals
+
 struct signal_struct {
 	int is_pending;
 	void (*sa_handler)(int);
 	int sender_pid;
 };
 
-typedef struct sigset {
+struct sigset {
 	int sigs[NSIGS];
-} sigset;
+};
+
+typedef struct sigset* sigset;
 
 struct sigaction {
 	void (*sa_handler)(int);
-	sigset_t sa_mask;
-    int sa_flags;
-}
+	sigset sa_mask;
+  int sa_flags;
+};

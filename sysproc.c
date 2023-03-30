@@ -93,7 +93,29 @@ sys_uptime(void)
   return xticks;
 }
 
+int
 sys_sigaction(void)
 {
-	return 0;
+  int signum;
+	int a, oa;
+  uint act_addr, oldact_addr;
+  struct sigaction *act;
+  struct sigaction *oldact;
+
+  if(argint(0, &signum) < 0 || argint(1, &a) < 0 || argint(2, &oa) < 0)
+	  return -1;
+	act_addr = (uint)a;
+	oldact_addr = (uint)oa;
+  act = (struct sigaction*)act_addr;
+  oldact = (struct sigaction*)oldact_addr;
+
+  if(oldact) {
+  	getsigmask(oldact->sa_mask);
+    getsighandler(signum, &oldact->sa_handler);
+  }
+  if(act) {
+  	setsigmask(act->sa_mask);
+    setsighandler(signum, act->sa_handler);
+  }
+  return 0;
 }

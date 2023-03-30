@@ -536,3 +536,45 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+void
+getsigmask(struct sigset *set)
+{
+	struct proc *curproc = myproc();
+	
+	for(int i = 0; i < NSIGS; i++)
+	  set->sigs[i] = curproc->sigmask[i];
+	return;
+}
+
+void
+setsigmask(struct sigset *set)
+{
+  struct proc *curproc = myproc();
+
+  acquire(&ptable.lock);
+	
+  for(int i = 0; i < NSIGS; i++)
+		curproc->sigmask[i] = set->sigs[i];
+
+  release(&ptable.lock);
+	return;
+}
+
+void
+getsighandler(int signum, void (**sighandler)(int))
+{
+	*sighandler = myproc()->sig_array[signum].sa_handler;
+	return;
+}
+
+void
+setsighandler(int signum, void (*sighandler)(int))
+{
+	acquire(&ptable.lock);
+  
+  myproc()->sig_array[signum].sa_handler = sighandler;
+  
+	release(&ptable.lock);
+	return;
+}
