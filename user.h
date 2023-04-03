@@ -1,5 +1,6 @@
 struct stat;
 struct rtcdate;
+struct sigset;
 struct sigaction;
 
 // system calls
@@ -39,6 +40,12 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+
+// signal.c
+int sigemptyset(struct sigset*);
+int sigfillset(struct sigset*);
+int sigaddset(struct sigset*, int);
+int sigdelset(struct sigset*, int);
 
 // handlers.c
 void sig_term(int signo);
