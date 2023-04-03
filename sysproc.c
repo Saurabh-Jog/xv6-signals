@@ -110,12 +110,12 @@ sys_sigaction(void)
   oldact = (struct sigaction*)oldact_addr;
 
   if(oldact) {
-  	getsigmask(oldact->sa_mask);
-    getsighandler(signum, &oldact->sa_handler);
+		getsigmask(oldact->sa_mask);
+		getsighandler(signum, &oldact->sa_handler);
   }
   if(act) {
-  	setsigmask(act->sa_mask);
-    setsighandler(signum, act->sa_handler);
+		setsigmask(act->sa_mask);
+		setsighandler(signum, act->sa_handler);
   }
   return 0;
 }

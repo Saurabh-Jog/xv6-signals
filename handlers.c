@@ -3,7 +3,7 @@
 
 void sig_term(int signo)
 {
-	exit();	
+	exit();
 }
 
 void sig_ign(int signo)
@@ -13,7 +13,7 @@ void sig_ign(int signo)
 
 void sig_stop(int signo)
 {
-	return;	
+	return;
 }
 
 void sig_cont(int signo)

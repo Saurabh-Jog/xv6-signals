@@ -49,7 +49,7 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  struct signal_struct 
+  struct signal_struct
 		  sig_array[NSIGS];    // Array of signals with their signal handlers
   int sigmask[NSIGS];		   // Indicates blocked signals
 };

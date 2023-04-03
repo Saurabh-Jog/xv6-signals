@@ -474,9 +474,7 @@ wakeup(void *chan)
   release(&ptable.lock);
 }
 
-// Kill the process with the given pid.
-// Process won't exit until it returns
-// to user space (see trap in trap.c).
+// Send signal signum to the process with the given pid.
 int
 kill(int pid, int signum)
 {
@@ -485,13 +483,14 @@ kill(int pid, int signum)
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid){
-	  if(signum == SIGKILL)
+	    if(signum == SIGKILL) {
         p->killed = 1;
-	  else
-		p->sig_array[signum].is_pending = 1;
-	  // Wake process from sleep if necessary.
-      // if(p->state == SLEEPING)
-      //  p->state = RUNNABLE;
+			  // Wake process from sleep if necessary.
+				// if(p->state == SLEEPING)
+				// p->state = RUNNABLE;
+			}
+			else
+				p->sig_array[signum].is_pending = 1;
       release(&ptable.lock);
       return 0;
     }
@@ -541,7 +540,7 @@ void
 getsigmask(struct sigset *set)
 {
 	struct proc *curproc = myproc();
-	
+
 	for(int i = 0; i < NSIGS; i++)
 	  set->sigs[i] = curproc->sigmask[i];
 	return;
@@ -553,7 +552,7 @@ setsigmask(struct sigset *set)
   struct proc *curproc = myproc();
 
   acquire(&ptable.lock);
-	
+
   for(int i = 0; i < NSIGS; i++)
 		curproc->sigmask[i] = set->sigs[i];
 
@@ -572,9 +571,7 @@ void
 setsighandler(int signum, void (*sighandler)(int))
 {
 	acquire(&ptable.lock);
-  
   myproc()->sig_array[signum].sa_handler = sighandler;
-  
 	release(&ptable.lock);
 	return;
 }
