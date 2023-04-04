@@ -20,6 +20,6 @@ typedef struct sigset* sigset;
 
 struct sigaction {
 	void (*sa_handler)(int);
-	sigset sa_mask;
+	struct sigset sa_mask;
   int sa_flags;
 };

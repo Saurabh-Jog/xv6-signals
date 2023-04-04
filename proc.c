@@ -344,6 +344,16 @@ scheduler(void)
       switchuvm(p);
       p->state = RUNNING;
 
+			for(int i = 0; i < NSIGS; i++){
+				if(p->sig_array[i].is_pending){
+					p->tf->esp -= sizeof(uint);
+					*((uint*)(p->tf->esp)) = p->tf->eip;
+					p->tf->eip = (uint)p->sig_array[i].sa_handler;
+					p->sig_array[i].is_pending = 0;
+					break;
+				}
+			}
+
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
@@ -496,6 +506,8 @@ kill(int pid, int signum)
 				if(!p->sigmask[signum])
 					p->sig_array[signum].is_pending = 1;
 			}
+			// for(int i = 0; i < NSIGS; i++)
+				// cprintf("%d ", p->sig_array[i].is_pending);
 			release(&ptable.lock);
       return 0;
     }

@@ -1,6 +1,6 @@
-#include "signal"
+#include "signal.h"
 
-int sigemptyset(struct igset *set)
+int sigemptyset(struct sigset *set)
 {
 	if(!set)
 		return -1;
@@ -28,6 +28,7 @@ int sigaddset(struct sigset *set, int signum)
 			return 0;
 		}
 	}
+	return -1;
 }
 
 int sigdelset(struct sigset *set, int signum)
@@ -40,4 +41,5 @@ int sigdelset(struct sigset *set, int signum)
 			return 0;
 		}
 	}
+	return -1;
 }
