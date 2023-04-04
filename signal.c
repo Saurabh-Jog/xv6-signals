@@ -15,7 +15,7 @@ int sigfillset(struct sigset *set)
 		return -1;
 	for(int i = 0; i < NSIGS; i++)
 		set->sigs[i] = 1;
-	return 0;	
+	return 0;
 }
 
 int sigaddset(struct sigset *set, int signum)

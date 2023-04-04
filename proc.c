@@ -478,6 +478,9 @@ wakeup(void *chan)
 int
 kill(int pid, int signum)
 {
+	if(signum > NSIGS)
+		return -1;
+
   struct proc *p;
 
   acquire(&ptable.lock);
@@ -489,9 +492,11 @@ kill(int pid, int signum)
 				// if(p->state == SLEEPING)
 				// p->state = RUNNABLE;
 			}
-			else
-				p->sig_array[signum].is_pending = 1;
-      release(&ptable.lock);
+			else {
+				if(!p->sigmask[signum])
+					p->sig_array[signum].is_pending = 1;
+			}
+			release(&ptable.lock);
       return 0;
     }
   }
