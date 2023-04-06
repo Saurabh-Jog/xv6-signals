@@ -200,6 +200,12 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+	
+	for(int i = 0; i < NSIGS; i++){
+		np->sig_array[i] = curproc->sig_array[i];
+		np->sig_array[i].is_pending = 0;
+		np->sigmask[i] = curproc->sigmask[i];
+	}
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
