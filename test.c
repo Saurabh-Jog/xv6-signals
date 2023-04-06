@@ -38,6 +38,6 @@ int main()
 	kill(pid, 2);
 	sleep(100);
 
-	printf(1, "back in the main function ... ihh ihh\n");
+	printf(1, "back in the main function...\n");
 	exit();
 }
