@@ -50,8 +50,8 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   struct signal_struct
-		  sig_array[NSIGS];    // Array of signals with their signal handlers
-  int sigmask[NSIGS];		   // Indicates blocked signals
+		  sig_array[NSIGS];    		 // Array of signals with their signal handlers
+  char sigmask[MASKLEN];		   // Indicates blocked signals
 };
 
 // Process memory is laid out contiguously, low addresses first:

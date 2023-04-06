@@ -200,12 +200,14 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
-	
+
 	for(int i = 0; i < NSIGS; i++){
 		np->sig_array[i] = curproc->sig_array[i];
 		np->sig_array[i].is_pending = 0;
-		np->sigmask[i] = curproc->sigmask[i];
 	}
+
+	for(int i = 0; i < MASKLEN; i++)
+		np->sigmask[i] = curproc->sigmask[i];
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -509,7 +511,9 @@ kill(int pid, int signum)
 				// p->state = RUNNABLE;
 			}
 			else {
-				if(!p->sigmask[signum])
+				int byte = signum / 8;
+				int bit = signum % 8;
+				if(!(p->sigmask[byte] & (1 << bit)))
 					p->sig_array[signum].is_pending = 1;
 			}
 			// for(int i = 0; i < NSIGS; i++)
@@ -564,7 +568,7 @@ getsigmask(struct sigset *set)
 {
 	struct proc *curproc = myproc();
 
-	for(int i = 0; i < NSIGS; i++)
+	for(int i = 0; i < MASKLEN; i++)
 	  set->sigs[i] = curproc->sigmask[i];
 	return;
 }
@@ -576,7 +580,7 @@ setsigmask(struct sigset *set)
 
   acquire(&ptable.lock);
 
-  for(int i = 0; i < NSIGS; i++)
+  for(int i = 0; i < MASKLEN; i++)
 		curproc->sigmask[i] = set->sigs[i];
 
   release(&ptable.lock);

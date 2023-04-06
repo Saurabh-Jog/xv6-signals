@@ -7,7 +7,7 @@
 #include "signal.h"
 
 void fun()
-{	
+{
 	printf(1, "\nI am the signal handler... yayyy :)\n");
 	return;
 }
@@ -25,13 +25,13 @@ int main()
 
 	x = sigaction(2, &new, &old);
 	printf(1, "sigaction returned: %d\n", x);
-	for(int i = 0; i < NSIGS; i++)
+	for(int i = 0; i < MASKLEN; i++)
 		printf(1, "%d ", old.sa_mask.sigs[i]);
 	printf(1, "\n");
-	
+
 	x = sigaction(2, &new, &old);
   printf(1, "sigaction returned: %d\n", x);
-  for(int i = 0; i < NSIGS; i++)
+  for(int i = 0; i < MASKLEN; i++)
     printf(1, "%d ", old.sa_mask.sigs[i]);
 	printf(1, "\n");
 

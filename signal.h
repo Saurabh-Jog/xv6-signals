@@ -1,4 +1,5 @@
 #define NSIGS   37 // number of signals
+#define MASKLEN ((NSIGS % 8 == 0) ? (NSIGS/8 + 1) : NSIGS/8)
 
 struct signal_struct {
 	int is_pending;
@@ -7,10 +8,8 @@ struct signal_struct {
 };
 
 struct sigset {
-	int sigs[NSIGS];
+	char sigs[MASKLEN];
 };
-
-typedef struct sigset* sigset;
 
 struct sigaction {
 	void (*sa_handler)(int);
