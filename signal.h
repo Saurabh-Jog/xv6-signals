@@ -1,5 +1,5 @@
 #define NSIGS   37 // number of signals
-#define MASKLEN ((NSIGS % 8 == 0) ? (NSIGS/8 + 1) : NSIGS/8)
+#define MASKLEN ((NSIGS % 8 == 0) ? (NSIGS/8) : NSIGS/8 + 1)
 
 struct signal_struct {
 	int is_pending;
