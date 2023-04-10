@@ -26,6 +26,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int sigaction(int, const struct sigaction* , struct sigaction*);
+int sigprocmask(int, const struct sigset*, struct sigset*);
 
 // ulib.c
 int stat(const char*, struct stat*);

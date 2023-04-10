@@ -119,3 +119,26 @@ sys_sigaction(void)
   }
   return 0;
 }
+
+int
+sys_sigprocmask(void)
+{
+	int signum;
+	int a, oa;
+  uint set_addr, oldset_addr;
+  struct sigset *set;
+  struct sigset *oldset;
+
+  if(argint(0, &signum) < 0 || argint(1, &a) < 0 || argint(2, &oa) < 0)
+    return -1;
+  set_addr = (uint)a;
+  oldset_addr = (uint)oa;
+  set = (struct sigset*)set_addr;
+  oldset = (struct sigset*)oldset_addr;
+
+	if(oldset)
+		getsigmask(oldset);
+	if(set)
+		setsigmask(set);
+	return 0;
+}
