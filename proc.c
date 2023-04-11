@@ -305,7 +305,7 @@ wait(void)
         p->killed = 0;
 				for(int i = 0; i < NSIGS; i++)
 				{
-					p->sig_array[i].pending = 0;
+					p->sig_array[i].is_pending = 0;
 					p->sig_array[i].sa_handler = 0;
 					p->sig_array[i].sender_pid = 0;
 				}
