@@ -17,6 +17,7 @@ struct sigaction {
   int sa_flags;
 };
 
+// Signal numbers
 #define SIGHUP 0
 #define SIGINT 1
 #define SIGQUIT 2
@@ -54,3 +55,10 @@ struct sigaction {
 #define SIGLOST 34
 #define SIGSYS 35
 #define SIGUNUSED 36
+
+// Default handlers
+#define TERM 0
+#define IGN 1
+#define CORE 2
+#define STOP 3
+#define CONT 4

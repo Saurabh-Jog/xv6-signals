@@ -23,19 +23,19 @@ int main()
 	sigaddset(&new.sa_mask, 6);
 	new.sa_flags = 0;
 
-	x = sigaction(2, &new, &old);
+	x = sigaction(1, &new, &old);
 	printf(1, "sigaction returned: %d\n", x);
 	for(int i = 0; i < MASKLEN; i++)
 		printf(1, "%d ", old.sa_mask.sigs[i]);
 	printf(1, "\n");
 
-	x = sigaction(2, &new, &old);
+	x = sigaction(1, &new, &old);
   printf(1, "sigaction returned: %d\n", x);
   for(int i = 0; i < MASKLEN; i++)
     printf(1, "%d ", old.sa_mask.sigs[i]);
 	printf(1, "\n");
 
-	kill(pid, 2);
+	kill(pid, 1);
 	sleep(100);
 
 	printf(1, "back in the main function...\n");

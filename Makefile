@@ -143,7 +143,7 @@ tags: $(OBJS) entryother.S _init
 vectors.S: vectors.pl
 	./vectors.pl > vectors.S
 
-ULIB = ulib.o usys.o printf.o umalloc.o handlers.o signal.o
+ULIB = ulib.o usys.o printf.o umalloc.o signal.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
@@ -181,7 +181,6 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
-	_tryterm\
 	_test\
 
 fs.img: mkfs README $(UPROGS)

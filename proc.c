@@ -21,6 +21,68 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+int def_handlers[NSIGS] = {
+  [SIGHUP]      TERM,
+  [SIGINT]      TERM,
+  [SIGQUIT]     CORE,
+  [SIGILL]      CORE,
+  [SIGTRAP]     CORE,
+  [SIGABRT]     CORE,
+  [SIGIOT]      CORE,
+  [SIGBUS]      CORE,
+  [SIGEMT]      TERM,
+  [SIGFPE]      CORE,
+  [SIGKILL]     TERM,
+  [SIGUSR1]     TERM,
+  [SIGSEGV]     CORE,
+  [SIGUSR2]     TERM,
+  [SIGPIPE]     TERM,
+  [SIGALRM]     TERM,
+  [SIGTERM]     TERM,
+  [SIGSTKFLT]   TERM,
+  [SIGCHLD]     IGN,
+  [SIGCONT]     CONT,
+  [SIGSTOP]     STOP,
+  [SIGTSTP]     STOP,
+  [SIGTTIN]     STOP,
+  [SIGTTOU]     STOP,
+  [SIGURG]      IGN,
+  [SIGXCPU]     CORE,
+  [SIGXFSZ]     CORE,
+  [SIGVTALRM]   TERM,
+  [SIGPROF]     TERM,
+  [SIGWINCH]    IGN,
+  [SIGIO]       TERM,
+  [SIGPOLL]     TERM,
+  [SIGPWR]      TERM,
+  [SIGINFO]     TERM,
+  [SIGLOST]     TERM,
+  [SIGSYS]      CORE,
+  [SIGUNUSED]   CORE,
+};
+
+void
+default_handler(struct proc *p, int handler)
+{
+  switch (handler) {
+    case TERM:
+      p->killed = 1;
+      return;
+
+    case IGN:
+      return;
+
+    case CORE:
+      return;
+
+    case STOP:
+      return;
+
+    case CONT:
+      return;
+  }
+}
+
 void
 pinit(void)
 {
@@ -360,11 +422,17 @@ scheduler(void)
 
 			for(int i = 0; i < NSIGS; i++){
 				if(p->sig_array[i].is_pending){
-					p->tf->esp -= sizeof(uint);
-					*((uint*)(p->tf->esp)) = p->tf->eip;
-					p->tf->eip = (uint)p->sig_array[i].sa_handler;
-					p->sig_array[i].is_pending = 0;
-					break;
+					if(p->sig_array[i].sa_handler == 0){
+						default_handler(p, def_handlers[i]);
+						break;
+					}
+					else{
+						p->tf->esp -= sizeof(uint);
+						*((uint*)(p->tf->esp)) = p->tf->eip;
+						p->tf->eip = (uint)p->sig_array[i].sa_handler;
+						p->sig_array[i].is_pending = 0;
+						break;
+					}
 				}
 			}
 
@@ -513,8 +581,8 @@ kill(int pid, int signum)
 	    if(signum == SIGKILL) {
         p->killed = 1;
 			  // Wake process from sleep if necessary.
-				// if(p->state == SLEEPING)
-				// p->state = RUNNABLE;
+				if (p->state == SLEEPING)
+					p->state = RUNNABLE;
 			}
 			else {
 				int byte = signum / 8;
