@@ -76,9 +76,13 @@ default_handler(struct proc *p, int handler)
       return;
 
     case STOP:
-      return;
+			p->state = STOPPED;
+			// Parent might be sleeping in wait().
+			wakeup1(p->parent);
+			return;
 
     case CONT:
+			p->state = RUNNABLE;
       return;
   }
 }
@@ -349,7 +353,7 @@ wait(void)
   
   acquire(&ptable.lock);
   for(;;){
-    // Scan through table looking for exited children.
+    // Scan through table looking for exited or stopped children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->parent != curproc)
@@ -375,6 +379,12 @@ wait(void)
         release(&ptable.lock);
         return pid;
       }
+
+			if(p->state == STOPPED)
+			{
+				release(&ptable.lock);
+				return p->pid;
+			}
     }
 
     // No point waiting if we don't have any children.
@@ -410,23 +420,21 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      if(p->state != RUNNABLE && p->state != STOPPED)
         continue;
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
 
 			for(int i = 0; i < NSIGS; i++){
 				if(p->sig_array[i].is_pending){
 					if(p->sig_array[i].sa_handler == 0){
 						default_handler(p, def_handlers[i]);
+						p->sig_array[i].is_pending = 0;
 						break;
 					}
-					else{
+					if(p->state != STOPPED){
 						p->tf->esp -= sizeof(uint);
 						*((uint*)(p->tf->esp)) = p->tf->eip;
 						p->tf->eip = (uint)p->sig_array[i].sa_handler;
@@ -436,6 +444,16 @@ scheduler(void)
 				}
 			}
 
+			if(p->state == STOPPED)
+				continue;
+
+			// Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+      c->proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
@@ -444,7 +462,6 @@ scheduler(void)
       c->proc = 0;
     }
     release(&ptable.lock);
-
   }
 }
 
@@ -554,7 +571,7 @@ wakeup1(void *chan)
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan)
-      p->state = RUNNABLE;
+			p->state = RUNNABLE;
 }
 
 // Wake up all processes sleeping on chan.
@@ -613,7 +630,8 @@ procdump(void)
   [SLEEPING]  "sleep ",
   [RUNNABLE]  "runble",
   [RUNNING]   "run   ",
-  [ZOMBIE]    "zombie"
+  [ZOMBIE]    "zombie",
+	[STOPPED]   "stopped",
   };
   int i;
   struct proc *p;

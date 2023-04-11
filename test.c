@@ -18,24 +18,24 @@ int main()
 	pid = getpid();
 
 	struct sigaction old, new;
-	new.sa_handler = fun;
+	// new.sa_handler = fun;
 	sigemptyset(&new.sa_mask);
 	sigaddset(&new.sa_mask, 6);
 	new.sa_flags = 0;
 
-	x = sigaction(1, &new, &old);
-	printf(1, "sigaction returned: %d\n", x);
+	x = sigaction(20, &new, &old);
+	/*printf(1, "sigaction returned: %d\n", x);
 	for(int i = 0; i < MASKLEN; i++)
 		printf(1, "%d ", old.sa_mask.sigs[i]);
-	printf(1, "\n");
+	printf(1, "\n");*/
 
-	x = sigaction(1, &new, &old);
-  printf(1, "sigaction returned: %d\n", x);
+	x = sigaction(20, &new, &old);
+  /*printf(1, "sigaction returned: %d\n", x);
   for(int i = 0; i < MASKLEN; i++)
     printf(1, "%d ", old.sa_mask.sigs[i]);
-	printf(1, "\n");
-
-	kill(pid, 1);
+	printf(1, "\n");*/
+	x++;
+	kill(pid, 20);
 	sleep(100);
 
 	printf(1, "back in the main function...\n");
