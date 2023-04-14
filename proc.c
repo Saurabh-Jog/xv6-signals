@@ -54,7 +54,7 @@ int def_handlers[NSIGS] = {
   [SIGWINCH]    IGN,
   [SIGIO]       TERM,
   [SIGPOLL]     TERM,
-  [SIGPWR]      TERM,
+	[SIGPWR]      TERM,
   [SIGINFO]     TERM,
   [SIGLOST]     TERM,
   [SIGSYS]      CORE,
@@ -84,7 +84,9 @@ default_handler(struct proc *p, int handler)
 
     case CONT:
 			p->state = RUNNABLE;
-      return;
+			p->abandoned = 0;
+			p->parent = initproc;
+			return;
   }
 }
 
@@ -370,6 +372,7 @@ wait(void)
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
+				p->abandoned = 0;
 				for(int i = 0; i < NSIGS; i++)
 				{
 					p->sig_array[i].is_pending = 0;
@@ -381,12 +384,14 @@ wait(void)
         return pid;
       }
 
-			if(p->state == STOPPED)
-			{
-				release(&ptable.lock);
-				return p->pid;
+			if(p->state == STOPPED && !p->abandoned){
+        cprintf("I am the cause\n");
+        pid = p->pid;
+        release(&ptable.lock);
+        p->abandoned = 1;
+        return p->pid;
 			}
-    }
+		}
 
     // No point waiting if we don't have any children.
     if(!havekids || curproc->killed){

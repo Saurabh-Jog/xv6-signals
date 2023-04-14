@@ -16,10 +16,10 @@ int main()
 {
 	int pid;
 	pid = getpid();
-	struct sigaction s;
-	s.sa_handler = fun;
-	sigemptyset(&s.sa_mask);
-	sigaction(SIGSTOP, &s, 0);
+	// struct sigaction s;
+	// s.sa_handler = fun;
+	// sigemptyset(&s.sa_mask);
+	// sigaction(SIGSTOP, &s, 0);
 	// printf(2, "my pid is %d and i am going to stop myself...qwa.", pid);
 	printf(2, "Sending signal to myslef\n");
 	kill(pid, SIGSTOP);
