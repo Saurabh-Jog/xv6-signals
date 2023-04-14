@@ -77,6 +77,7 @@ default_handler(struct proc *p, int handler)
 
     case STOP:
 			p->state = STOPPED;
+			cprintf("process %d %s stopped!\n", p->pid, p->name);
 			// Parent might be sleeping in wait().
 			wakeup1(p->parent);
 			return;
@@ -426,7 +427,7 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-
+			switchuvm(p);
 			for(int i = 0; i < NSIGS; i++){
 				if(p->sig_array[i].is_pending){
 					if(p->sig_array[i].sa_handler == 0){
@@ -444,14 +445,16 @@ scheduler(void)
 				}
 			}
 
-			if(p->state == STOPPED)
+			if(p->state == STOPPED){
+				switchkvm();
 				continue;
+			}
 
 			// Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
       c->proc = p;
-      switchuvm(p);
+      // switchuvm(p);
       p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);

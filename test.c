@@ -14,30 +14,17 @@ void fun()
 
 int main()
 {
-	int pid, x;
+	int pid;
 	pid = getpid();
-
-	struct sigaction old, new;
-	// new.sa_handler = fun;
-	sigemptyset(&new.sa_mask);
-	sigaddset(&new.sa_mask, 6);
-	new.sa_flags = 0;
-
-	x = sigaction(20, &new, &old);
-	/*printf(1, "sigaction returned: %d\n", x);
-	for(int i = 0; i < MASKLEN; i++)
-		printf(1, "%d ", old.sa_mask.sigs[i]);
-	printf(1, "\n");*/
-
-	x = sigaction(20, &new, &old);
-  /*printf(1, "sigaction returned: %d\n", x);
-  for(int i = 0; i < MASKLEN; i++)
-    printf(1, "%d ", old.sa_mask.sigs[i]);
-	printf(1, "\n");*/
-	x++;
-	kill(pid, 20);
+	struct sigaction s;
+	s.sa_handler = fun;
+	sigemptyset(&s.sa_mask);
+	sigaction(SIGSTOP, &s, 0);
+	// printf(2, "my pid is %d and i am going to stop myself...qwa.", pid);
+	printf(2, "Sending signal to myslef\n");
+	kill(pid, SIGSTOP);
 	sleep(100);
-
-	printf(1, "back in the main function...\n");
+	printf(2, "back from signal handler\n");
+	// printf(2, "back in the main function...\n");
 	exit();
 }
