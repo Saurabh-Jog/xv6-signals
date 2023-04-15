@@ -73,6 +73,7 @@ default_handler(struct proc *p, int handler)
       return;
 
     case CORE:
+			p->killed = 1;
       return;
 
     case STOP:
@@ -83,9 +84,11 @@ default_handler(struct proc *p, int handler)
 			return;
 
     case CONT:
-			p->state = RUNNABLE;
-			p->abandoned = 0;
-			p->parent = initproc;
+			if(p->state == STOPPED){
+			  p->state = RUNNABLE;
+			  p->abandoned = 0;
+			  p->parent = initproc;
+			}
 			return;
   }
 }
@@ -385,7 +388,6 @@ wait(void)
       }
 
 			if(p->state == STOPPED && !p->abandoned){
-        cprintf("I am the cause\n");
         pid = p->pid;
         release(&ptable.lock);
         p->abandoned = 1;
@@ -433,23 +435,26 @@ scheduler(void)
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
 			switchuvm(p);
+
 			for(int i = 0; i < NSIGS; i++){
-				if(p->sig_array[i].is_pending){
-					if(p->sig_array[i].sa_handler == 0){
-						default_handler(p, def_handlers[i]);
-						p->sig_array[i].is_pending = 0;
-						break;
-					}
-					if(p->state != STOPPED){
-						p->tf->esp -= sizeof(uint);
-						*((uint*)(p->tf->esp)) = p->tf->eip;
-						p->tf->eip = (uint)p->sig_array[i].sa_handler;
-						p->sig_array[i].is_pending = 0;
-						break;
-					}
+				if(p->sig_array[i].is_pending && p->sig_array[i].sa_handler == 0){
+					default_handler(p, def_handlers[i]);
+					p->sig_array[i].is_pending = 0;
+					if(def_handlers[i] == TERM || def_handlers[i] == CORE)
+					  break;
 				}
 			}
-
+      if(p->killed == 0){
+			  for(int i = 0; i < NSIGS; i++){
+				  if(p->sig_array[i].is_pending && p->sig_array[i].sa_handler){	
+			      p->tf->esp -= sizeof(uint);
+				    *((uint*)(p->tf->esp)) = p->tf->eip;
+				    p->tf->eip = (uint)p->sig_array[i].sa_handler;
+				    p->sig_array[i].is_pending = 0;
+			  	}
+			  }
+			}
+			
 			if(p->state == STOPPED){
 				switchkvm();
 				continue;
