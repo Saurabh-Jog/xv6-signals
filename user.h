@@ -26,7 +26,8 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int sigaction(int, const struct sigaction* , struct sigaction*);
-int sigprocmask(int, const struct sigset*, struct sigset*);
+int sigprocmask(const struct sigset*, struct sigset*);
+int signal(int, void(*)(int));
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -47,10 +48,3 @@ int sigemptyset(struct sigset*);
 int sigfillset(struct sigset*);
 int sigaddset(struct sigset*, int);
 int sigdelset(struct sigset*, int);
-
-// handlers.c
-void sig_term(int signo);
-void sig_ign(int signo);
-// void sig_core(int signo);
-void sig_stop(int signo);
-void sig_cont(int signo);

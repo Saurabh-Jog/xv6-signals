@@ -40,15 +40,17 @@ int main()
 	int pid = fork();
 	if(pid == 0){
 		printf(2, "I am the child, I am going to stop myself\n");
-		struct sigaction s1;
-		sigemptyset(&s1.sa_mask);
-		sigaddset(&s1.sa_mask, SIGSTOP);
-		s1.sa_handler = fun1;
-		sigaction(SIGCHLD, &s1, 0); 
-		s1.sa_handler = fun2;
-    sigaction(SIGURG, &s1, 0);
-		s1.sa_handler = fun3;
-    sigaction(SIGINT, &s1, 0);
+		// struct sigaction s1;
+		struct sigset mask;
+		sigemptyset(&mask);
+		sigaddset(&mask, SIGSTOP);
+		sigprocmask(&mask, 0);
+		// s1.sa_handler = fun1;
+		signal(SIGCHLD, fun1); 
+		// s1.sa_handler = fun2;
+    signal(SIGURG, fun2);
+		// s1.sa_handler = fun3;
+    signal(SIGINT, fun3);
 		sleep(100);
 		printf(2, "The child is back\n");
 		exit();

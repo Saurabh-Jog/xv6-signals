@@ -123,13 +123,12 @@ sys_sigaction(void)
 int
 sys_sigprocmask(void)
 {
-	int signum;
 	int a, oa;
   uint set_addr, oldset_addr;
   struct sigset *set;
   struct sigset *oldset;
 
-  if(argint(0, &signum) < 0 || argint(1, &a) < 0 || argint(2, &oa) < 0)
+  if(argint(0, &a) < 0 || argint(1, &oa) < 0)
     return -1;
   set_addr = (uint)a;
   oldset_addr = (uint)oa;
@@ -140,5 +139,21 @@ sys_sigprocmask(void)
 		getsigmask(oldset);
 	if(set)
 		setsigmask(set);
+	return 0;
+}
+
+int
+sys_signal(void)
+{
+  int signum;
+	int a;
+  uint sa_address;
+
+	if(argint(0, &signum) < 0 || argint(1, &a) < 0)
+	  return -1;
+
+  sa_address = (uint)a;
+	void(*sa_handler)(int) = (void(*)(int))sa_address;
+  setsighandler(signum, sa_handler);
 	return 0;
 }
