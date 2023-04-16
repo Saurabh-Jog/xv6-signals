@@ -157,3 +157,9 @@ sys_signal(void)
   setsighandler(signum, sa_handler);
 	return 0;
 }
+
+int
+sys_pause(void)
+{
+  return pause();
+}

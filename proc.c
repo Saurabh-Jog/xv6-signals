@@ -446,15 +446,15 @@ scheduler(void)
 			}
       if(p->killed == 0){
 			  for(int i = 0; i < NSIGS; i++){
-				  if(p->sig_array[i].is_pending && p->sig_array[i].sa_handler){	
-			      p->tf->esp -= sizeof(uint);
+				  if(p->sig_array[i].is_pending && p->sig_array[i].sa_handler){
+						p->tf->esp -= sizeof(uint);
 				    *((uint*)(p->tf->esp)) = p->tf->eip;
 				    p->tf->eip = (uint)p->sig_array[i].sa_handler;
 				    p->sig_array[i].is_pending = 0;
-			  	}
+					}
 			  }
 			}
-			
+
 			if(p->state == STOPPED){
 				switchkvm();
 				continue;
@@ -604,27 +604,22 @@ kill(int pid, int signum)
 		return -1;
 
   struct proc *p;
+	int dh;
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid){
-	    if(signum == SIGKILL) {
-        p->killed = 1;
-			  // Wake process from sleep if necessary.
-				if (p->state == SLEEPING)
-					p->state = RUNNABLE;
+			int byte = signum / 8;
+			int bit = signum % 8;
+			if(!(p->sigmask[byte] & (1 << bit))){
+				p->sig_array[signum].is_pending = 1;
+				dh = def_handlers[signum];
+				if(p->state == SLEEPING && (p->sig_array[signum].sa_handler || dh == TERM || dh == CORE))
+					wakeup1(p->sig_array);
 			}
-			else {
-				int byte = signum / 8;
-				int bit = signum % 8;
-				if(!(p->sigmask[byte] & (1 << bit)))
-					p->sig_array[signum].is_pending = 1;
-			}
-			// for(int i = 0; i < NSIGS; i++)
-				// cprintf("%d ", p->sig_array[i].is_pending);
 			release(&ptable.lock);
-      return 0;
-    }
+			return 0;
+		}
   }
   release(&ptable.lock);
   return -1;
@@ -702,8 +697,20 @@ getsighandler(int signum, void (**sighandler)(int))
 void
 setsighandler(int signum, void (*sighandler)(int))
 {
+	if(signum == SIGSTOP || signum == SIGKILL)
+		return;
 	acquire(&ptable.lock);
   myproc()->sig_array[signum].sa_handler = sighandler;
 	release(&ptable.lock);
 	return;
+}
+
+int
+pause(void)
+{
+	struct proc *p = myproc();
+	acquire(&ptable.lock);
+	sleep(p->sig_array, &ptable.lock);
+	release(&ptable.lock);
+	return -1;
 }

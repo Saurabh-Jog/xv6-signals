@@ -52,7 +52,7 @@ struct proc {
   struct signal_struct
 		  sig_array[NSIGS];    		 // Array of signals with their signal handlers
   char sigmask[MASKLEN];		   // Indicates blocked signals
-	char abandoned;							 // Child was abandoned by the parent when it stopped  
+	char abandoned;							 // Child was abandoned by the parent when it stopped
 };
 
 // Process memory is laid out contiguously, low addresses first:

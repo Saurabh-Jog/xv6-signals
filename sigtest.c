@@ -39,14 +39,14 @@ int main()
 
 	int pid = fork();
 	if(pid == 0){
-		printf(2, "I am the child, I am going to stop myself\n");
+		printf(2, "I am the child\n");
 		// struct sigaction s1;
 		struct sigset mask;
 		sigemptyset(&mask);
 		sigaddset(&mask, SIGSTOP);
 		sigprocmask(&mask, 0);
 		// s1.sa_handler = fun1;
-		signal(SIGCHLD, fun1); 
+		signal(SIGCHLD, fun1);
 		// s1.sa_handler = fun2;
     signal(SIGURG, fun2);
 		// s1.sa_handler = fun3;

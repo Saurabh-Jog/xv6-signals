@@ -23,3 +23,4 @@
 #define SYS_sigaction  22
 #define SYS_sigprocmask  23
 #define SYS_signal  24
+#define SYS_pause  25
