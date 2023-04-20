@@ -2,7 +2,7 @@
 #define MASKLEN ((NSIGS % 8 == 0) ? (NSIGS/8) : NSIGS/8 + 1)
 
 struct signal_struct {
-	int is_pending;
+	char is_pending;
 	void (*sa_handler)(int);
 	int sender_pid;
 };

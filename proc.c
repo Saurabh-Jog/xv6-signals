@@ -87,7 +87,7 @@ default_handler(struct proc *p, int handler)
 			if(p->state == STOPPED){
 			  p->state = RUNNABLE;
 			  p->abandoned = 0;
-			  p->parent = initproc;
+			  // p->parent = initproc;
 			}
 			return;
   }
@@ -682,6 +682,10 @@ setsigmask(struct sigset *set)
 
   for(int i = 0; i < MASKLEN; i++)
 		curproc->sigmask[i] = set->sigs[i];
+
+	char filter = 1;
+	curproc->sigmask[SIGKILL / 8] &= ~(filter << (SIGKILL % 8));
+	curproc->sigmask[SIGSTOP / 8] &= ~(filter << (SIGSTOP % 8));
 
   release(&ptable.lock);
 	return;

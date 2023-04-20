@@ -6,61 +6,54 @@
 #include "fcntl.h"
 #include "signal.h"
 
-void fun1(int s)
+int i = 0;
+
+void fun(int s)
 {
-	printf(2, "Inside signal handler 1\n");
+	printf(2, "Caught signal %d\n", i);
+	if(i+1 == SIGKILL || i+1 == SIGSTOP)
+		i = i + 2;
+	else
+		i++;
 	return;
-}
-
-void fun2(int s)
-{
-  printf(2, "Inside signal handler 2\n");
-  return;
-}
-
-void fun3(int s)
-{
-  printf(2, "Inside signal handler 3\n");
-  return;
 }
 
 int main()
 {
-	/*struct sigaction s1;
-	s1.sa_handler = fun;
-	sigemptyset(&s1.sa_mask);
-	sigaction(SIGINT, &s1, 0);
-
-	kill(getpid(), SIGINT);
-	printf(2, "going to sleep\n");
-	sleep(100);
-	printf(2, "Came back from sleep\n");
-	exit();*/
+	int p[2];
+	pipe(p);
 
 	int pid = fork();
+
 	if(pid == 0){
-		printf(2, "I am the child\n");
-		// struct sigaction s1;
-		struct sigset mask;
-		sigemptyset(&mask);
-		sigaddset(&mask, SIGSTOP);
-		sigprocmask(&mask, 0);
-		// s1.sa_handler = fun1;
-		signal(SIGCHLD, fun1);
-		// s1.sa_handler = fun2;
-    signal(SIGURG, fun2);
-		// s1.sa_handler = fun3;
-    signal(SIGINT, fun3);
-		sleep(100);
-		printf(2, "The child is back\n");
+		close(p[0]);
+		printf(2, "Child created with pid = %d\n", getpid());
+		printf(2, "Setting signal handlers for all signals\n");
+		for(int j = 0; j < NSIGS; j++)
+			signal(j, fun);
+
+		char s[5] = "pass";
+		s[4] = '\0';
+		write(p[1], s, 5);
+
+		sleep(50);
+		if(i == NSIGS)
+			printf(2, "\nSIGTEST PASSED :)\n");
+		else
+			printf(2, "\nSIGTEST FAILED :(\n");
+		close(1);
 		exit();
 	}
-	sleep(10);
-	kill(pid, SIGCHLD);
-	kill(pid, SIGSTOP);
-	kill(pid, SIGURG);
-	kill(pid, SIGINT);
-	wait();
-	exit();
 
+	close(1);
+	char s[5];
+	read(p[0], s, 5);
+	for(int j = 0; j < NSIGS; j++){
+		if(j == SIGKILL || j == SIGSTOP)
+			continue;
+		kill(pid, j);
+	}
+	wait();
+	close(0);
+	exit();
 }
