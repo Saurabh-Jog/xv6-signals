@@ -38,7 +38,7 @@ int main()
     sleep(50);
     if(i == 0){
       printf(2, "signal is masked, handler is not evoked\n");
-			printf(2, "\nSIGMASKTEST PASSED\n");
+			printf(2, "\nSIGMASKTEST PASSED :)\n");
 		}
 		else
       printf(2, "\nSIGMASKTEST FAILED :(\n");

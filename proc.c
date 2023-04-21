@@ -692,14 +692,14 @@ setsigmask(struct sigset *set)
 }
 
 void
-getsighandler(int signum, void (**sighandler)(int))
+getsighandler(int signum, void (**sighandler)(void))
 {
 	*sighandler = myproc()->sig_array[signum].sa_handler;
 	return;
 }
 
 void
-setsighandler(int signum, void (*sighandler)(int))
+setsighandler(int signum, void (*sighandler)(void))
 {
 	if(signum == SIGSTOP || signum == SIGKILL)
 		return;

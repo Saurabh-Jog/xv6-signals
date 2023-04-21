@@ -153,7 +153,7 @@ sys_signal(void)
 	  return -1;
 
   sa_address = (uint)a;
-	void(*sa_handler)(int) = (void(*)(int))sa_address;
+	void(*sa_handler)(void) = (void(*)(void))sa_address;
   setsighandler(signum, sa_handler);
 	return 0;
 }

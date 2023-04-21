@@ -3,7 +3,7 @@
 
 struct signal_struct {
 	char is_pending;
-	void (*sa_handler)(int);
+	void (*sa_handler)(void);
 	int sender_pid;
 };
 
@@ -12,7 +12,7 @@ struct sigset {
 };
 
 struct sigaction {
-	void (*sa_handler)(int);
+	void (*sa_handler)(void);
 	struct sigset sa_mask;
   int sa_flags;
 };
