@@ -184,6 +184,7 @@ UPROGS=\
 	_sigtest\
 	_pausetest\
 	_sigmasktest\
+	_handlertest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
