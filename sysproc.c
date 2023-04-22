@@ -35,7 +35,7 @@ sys_kill(void)
   if(argint(0, &pid) < 0)
     return -1;
   if(argint(1, &signum) < 0)
-	return -1;
+  return -1;
   return kill(pid, signum);
 }
 
@@ -97,25 +97,25 @@ int
 sys_sigaction(void)
 {
   int signum;
-	int a, oa;
+  int a, oa;
   uint act_addr, oldact_addr;
   struct sigaction *act;
   struct sigaction *oldact;
 
   if(argint(0, &signum) < 0 || argint(1, &a) < 0 || argint(2, &oa) < 0)
-	  return -1;
-	act_addr = (uint)a;
-	oldact_addr = (uint)oa;
+    return -1;
+  act_addr = (uint)a;
+  oldact_addr = (uint)oa;
   act = (struct sigaction*)act_addr;
   oldact = (struct sigaction*)oldact_addr;
 
   if(oldact) {
-		getsigmask(&oldact->sa_mask);
-		getsighandler(signum, &oldact->sa_handler);
+    getsigmask(&oldact->sa_mask);
+    getsighandler(signum, &oldact->sa_handler);
   }
   if(act) {
-		setsigmask(&act->sa_mask);
-		setsighandler(signum, act->sa_handler);
+    setsigmask(&act->sa_mask);
+    setsighandler(signum, act->sa_handler);
   }
   return 0;
 }
@@ -123,7 +123,7 @@ sys_sigaction(void)
 int
 sys_sigprocmask(void)
 {
-	int a, oa;
+  int a, oa;
   uint set_addr, oldset_addr;
   struct sigset *set;
   struct sigset *oldset;
@@ -135,27 +135,27 @@ sys_sigprocmask(void)
   set = (struct sigset*)set_addr;
   oldset = (struct sigset*)oldset_addr;
 
-	if(oldset)
-		getsigmask(oldset);
-	if(set)
-		setsigmask(set);
-	return 0;
+  if(oldset)
+    getsigmask(oldset);
+  if(set)
+    setsigmask(set);
+  return 0;
 }
 
 int
 sys_signal(void)
 {
   int signum;
-	int a;
+  int a;
   uint sa_address;
 
-	if(argint(0, &signum) < 0 || argint(1, &a) < 0)
-	  return -1;
+  if(argint(0, &signum) < 0 || argint(1, &a) < 0)
+    return -1;
 
   sa_address = (uint)a;
-	void(*sa_handler)(void) = (void(*)(void))sa_address;
+  void(*sa_handler)(void) = (void(*)(void))sa_address;
   setsighandler(signum, sa_handler);
-	return 0;
+  return 0;
 }
 
 int

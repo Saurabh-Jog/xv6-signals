@@ -2,18 +2,18 @@
 #define MASKLEN ((NSIGS % 8 == 0) ? (NSIGS/8) : NSIGS/8 + 1)
 
 struct signal_struct {
-	char is_pending;
-	void (*sa_handler)(void);
-	int sender_pid;
+  char is_pending;
+  void (*sa_handler)(void);
+  int sender_pid;
 };
 
 struct sigset {
-	char sigs[MASKLEN];
+  char sigs[MASKLEN];
 };
 
 struct sigaction {
-	void (*sa_handler)(void);
-	struct sigset sa_mask;
+  void (*sa_handler)(void);
+  struct sigset sa_mask;
   int sa_flags;
 };
 

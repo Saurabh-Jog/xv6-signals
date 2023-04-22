@@ -54,7 +54,7 @@ int def_handlers[NSIGS] = {
   [SIGWINCH]    IGN,
   [SIGIO]       TERM,
   [SIGPOLL]     TERM,
-	[SIGPWR]      TERM,
+  [SIGPWR]      TERM,
   [SIGINFO]     TERM,
   [SIGLOST]     TERM,
   [SIGSYS]      CORE,
@@ -73,23 +73,23 @@ default_handler(struct proc *p, int handler)
       return;
 
     case CORE:
-			p->killed = 1;
+      p->killed = 1;
       return;
 
     case STOP:
-			p->state = STOPPED;
-			cprintf("process %d %s stopped!\n", p->pid, p->name);
-			// Parent might be sleeping in wait().
-			wakeup1(p->parent);
-			return;
+      p->state = STOPPED;
+      cprintf("process %d %s stopped!\n", p->pid, p->name);
+      // Parent might be sleeping in wait().
+      wakeup1(p->parent);
+      return;
 
     case CONT:
-			if(p->state == STOPPED){
-			  p->state = RUNNABLE;
-			  p->abandoned = 0;
-			  // p->parent = initproc;
-			}
-			return;
+      if(p->state == STOPPED){
+        p->state = RUNNABLE;
+        p->abandoned = 0;
+        // p->parent = initproc;
+      }
+      return;
   }
 }
 
@@ -273,13 +273,13 @@ fork(void)
   np->parent = curproc;
   *np->tf = *curproc->tf;
 
-	for(int i = 0; i < NSIGS; i++){
-		np->sig_array[i] = curproc->sig_array[i];
-		np->sig_array[i].is_pending = 0;
-	}
+  for(int i = 0; i < NSIGS; i++){
+    np->sig_array[i] = curproc->sig_array[i];
+    np->sig_array[i].is_pending = 0;
+  }
 
-	for(int i = 0; i < MASKLEN; i++)
-		np->sigmask[i] = curproc->sigmask[i];
+  for(int i = 0; i < MASKLEN; i++)
+    np->sigmask[i] = curproc->sigmask[i];
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -375,25 +375,25 @@ wait(void)
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
-				p->abandoned = 0;
-				for(int i = 0; i < NSIGS; i++)
-				{
-					p->sig_array[i].is_pending = 0;
-					p->sig_array[i].sa_handler = 0;
-					p->sig_array[i].sender_pid = 0;
-				}
+        p->abandoned = 0;
+        for(int i = 0; i < NSIGS; i++)
+        {
+          p->sig_array[i].is_pending = 0;
+          p->sig_array[i].sa_handler = 0;
+          p->sig_array[i].sender_pid = 0;
+        }
         p->state = UNUSED;
         release(&ptable.lock);
         return pid;
       }
 
-			if(p->state == STOPPED && !p->abandoned){
+      if(p->state == STOPPED && !p->abandoned){
         pid = p->pid;
         release(&ptable.lock);
         p->abandoned = 1;
         return p->pid;
-			}
-		}
+      }
+    }
 
     // No point waiting if we don't have any children.
     if(!havekids || curproc->killed){
@@ -434,33 +434,33 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-			switchuvm(p);
+      switchuvm(p);
 
-			for(int i = 0; i < NSIGS; i++){
-				if(p->sig_array[i].is_pending && p->sig_array[i].sa_handler == 0){
-					default_handler(p, def_handlers[i]);
-					p->sig_array[i].is_pending = 0;
-					if(def_handlers[i] == TERM || def_handlers[i] == CORE)
-					  break;
-				}
-			}
+      for(int i = 0; i < NSIGS; i++){
+        if(p->sig_array[i].is_pending && p->sig_array[i].sa_handler == 0){
+          default_handler(p, def_handlers[i]);
+          p->sig_array[i].is_pending = 0;
+          if(def_handlers[i] == TERM || def_handlers[i] == CORE)
+            break;
+        }
+      }
       if(p->killed == 0){
-			  for(int i = 0; i < NSIGS; i++){
-				  if(p->sig_array[i].is_pending && p->sig_array[i].sa_handler){
-						p->tf->esp -= sizeof(uint);
-				    *((uint*)(p->tf->esp)) = p->tf->eip;
-				    p->tf->eip = (uint)p->sig_array[i].sa_handler;
-				    p->sig_array[i].is_pending = 0;
-					}
-			  }
-			}
+        for(int i = 0; i < NSIGS; i++){
+          if(p->sig_array[i].is_pending && p->sig_array[i].sa_handler){
+            p->tf->esp -= sizeof(uint);
+            *((uint*)(p->tf->esp)) = p->tf->eip;
+            p->tf->eip = (uint)p->sig_array[i].sa_handler;
+            p->sig_array[i].is_pending = 0;
+          }
+        }
+      }
 
-			if(p->state == STOPPED){
-				switchkvm();
-				continue;
-			}
+      if(p->state == STOPPED){
+        switchkvm();
+        continue;
+      }
 
-			// Switch to chosen process.  It is the process's job
+      // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
       c->proc = p;
@@ -584,7 +584,7 @@ wakeup1(void *chan)
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan)
-			p->state = RUNNABLE;
+      p->state = RUNNABLE;
 }
 
 // Wake up all processes sleeping on chan.
@@ -600,26 +600,26 @@ wakeup(void *chan)
 int
 kill(int pid, int signum)
 {
-	if(signum > NSIGS)
-		return -1;
+  if(signum > NSIGS)
+    return -1;
 
   struct proc *p;
-	int dh;
+  int dh;
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid){
-			int byte = signum / 8;
-			int bit = signum % 8;
-			if(!(p->sigmask[byte] & (1 << bit))){
-				p->sig_array[signum].is_pending = 1;
-				dh = def_handlers[signum];
-				if(p->state == SLEEPING && (p->sig_array[signum].sa_handler || dh == TERM || dh == CORE))
-					wakeup1(p->sig_array);
-			}
-			release(&ptable.lock);
-			return 0;
-		}
+      int byte = signum / 8;
+      int bit = signum % 8;
+      if(!(p->sigmask[byte] & (1 << bit))){
+        p->sig_array[signum].is_pending = 1;
+        dh = def_handlers[signum];
+        if(p->state == SLEEPING && (p->sig_array[signum].sa_handler || dh == TERM || dh == CORE))
+          wakeup1(p->sig_array);
+      }
+      release(&ptable.lock);
+      return 0;
+    }
   }
   release(&ptable.lock);
   return -1;
@@ -639,7 +639,7 @@ procdump(void)
   [RUNNABLE]  "runble",
   [RUNNING]   "run   ",
   [ZOMBIE]    "zombie",
-	[STOPPED]   "stopped",
+  [STOPPED]   "stopped",
   };
   int i;
   struct proc *p;
@@ -666,11 +666,11 @@ procdump(void)
 void
 getsigmask(struct sigset *set)
 {
-	struct proc *curproc = myproc();
+  struct proc *curproc = myproc();
 
-	for(int i = 0; i < MASKLEN; i++)
-	  set->sigs[i] = curproc->sigmask[i];
-	return;
+  for(int i = 0; i < MASKLEN; i++)
+    set->sigs[i] = curproc->sigmask[i];
+  return;
 }
 
 void
@@ -681,40 +681,40 @@ setsigmask(struct sigset *set)
   acquire(&ptable.lock);
 
   for(int i = 0; i < MASKLEN; i++)
-		curproc->sigmask[i] = set->sigs[i];
+    curproc->sigmask[i] = set->sigs[i];
 
-	char filter = 1;
-	curproc->sigmask[SIGKILL / 8] &= ~(filter << (SIGKILL % 8));
-	curproc->sigmask[SIGSTOP / 8] &= ~(filter << (SIGSTOP % 8));
+  char filter = 1;
+  curproc->sigmask[SIGKILL / 8] &= ~(filter << (SIGKILL % 8));
+  curproc->sigmask[SIGSTOP / 8] &= ~(filter << (SIGSTOP % 8));
 
   release(&ptable.lock);
-	return;
+  return;
 }
 
 void
 getsighandler(int signum, void (**sighandler)(void))
 {
-	*sighandler = myproc()->sig_array[signum].sa_handler;
-	return;
+  *sighandler = myproc()->sig_array[signum].sa_handler;
+  return;
 }
 
 void
 setsighandler(int signum, void (*sighandler)(void))
 {
-	if(signum == SIGSTOP || signum == SIGKILL)
-		return;
-	acquire(&ptable.lock);
+  if(signum == SIGSTOP || signum == SIGKILL)
+    return;
+  acquire(&ptable.lock);
   myproc()->sig_array[signum].sa_handler = sighandler;
-	release(&ptable.lock);
-	return;
+  release(&ptable.lock);
+  return;
 }
 
 int
 pause(void)
 {
-	struct proc *p = myproc();
-	acquire(&ptable.lock);
-	sleep(p->sig_array, &ptable.lock);
-	release(&ptable.lock);
-	return -1;
+  struct proc *p = myproc();
+  acquire(&ptable.lock);
+  sleep(p->sig_array, &ptable.lock);
+  release(&ptable.lock);
+  return -1;
 }

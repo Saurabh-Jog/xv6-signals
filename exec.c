@@ -100,10 +100,10 @@ exec(char *path, char **argv)
   curproc->sz = sz;
   curproc->tf->eip = elf.entry;  // main
   curproc->tf->esp = sp;
-	for(int i = 0; i < NSIGS; i++)
-		curproc->sig_array[i].sa_handler = 0;
-	for(int i = 0; i < MASKLEN; i++)
-		curproc->sigmask[i] = 0;
+  for(int i = 0; i < NSIGS; i++)
+    curproc->sig_array[i].sa_handler = 0;
+  for(int i = 0; i < MASKLEN; i++)
+    curproc->sigmask[i] = 0;
   switchuvm(curproc);
   freevm(oldpgdir);
   return 0;
